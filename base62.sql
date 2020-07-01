@@ -1,0 +1,19 @@
+DELIMITER $$
+CREATE DEFINER=`your_db_name`@`localhost` FUNCTION `base62`(`x` VARBINARY(16)) RETURNS varchar(22) CHARSET utf8
+    DETERMINISTIC
+BEGIN
+  DECLARE digits CHAR(62) DEFAULT "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  DECLARE n NUMERIC(39) DEFAULT 0;
+  DECLARE s VARCHAR(22) DEFAULT "";
+  DECLARE i INT DEFAULT 1;
+  WHILE i <= LENGTH(x) DO
+    SET n = n * 256 + ORD(SUBSTR(x, i, 1));
+    SET i = i + 1;
+  END WHILE;
+  WHILE n > 0 DO
+    SET s = CONCAT(SUBSTR(digits, (n MOD 62) + 1, 1), s);
+    SET n = FLOOR(n / 62);
+  END WHILE;
+  RETURN s;
+END$$
+DELIMITER ;
